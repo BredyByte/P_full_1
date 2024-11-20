@@ -14,8 +14,8 @@ app.get('/api/getKeys', (req, res) => {
   }
 
   res.json({
-    UNSPLASH_ACCESS_KEY: accessKey,
-    UNSPLASH_SECRET_KEY: secretKey
+    accessKey: accessKey,
+    secretKey: secretKey
   });
 
   console.log('The keys have been sent');
