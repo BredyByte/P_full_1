@@ -1,0 +1,51 @@
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    volumes:
+      - frontend_volume:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    networks:
+      - app_network
+    restart: always
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    env_file: .env
+    volumes:
+      - backend_volume:/app
+    networks:
+      - app_network
+    expose:
+      - "5000"
+    restart: always
+
+volumes:
+  frontend_volume:
+    name: frontend_volume
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend/src
+      o: bind
+
+  backend_volume:
+    name: backend_volume
+    driver: local
+    driver_opts:
+      type: none
+      device: ./backend/src
+      o: bind
+
+networks:
+  app_network:
+    name: app_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+          gateway: 172.23.0.1
