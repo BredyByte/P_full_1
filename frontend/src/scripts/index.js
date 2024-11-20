@@ -86,10 +86,14 @@ async function fetchImages(query, page) {
         makeRequest(url, (data) => {
             console.log('Received data:', data);
             if (data.results) {
-                if (page === 1) {
-                    renderGallery(data.results);
+                if (data.results.length === 0) {
+                    renderGallery([]); // Если пустой результат, показываем сообщение
                 } else {
-                    appendToGallery(data.results);
+                    if (page === 1) {
+                        renderGallery(data.results); // Для первой страницы рендерим с нуля
+                    } else {
+                        appendToGallery(data.results); // Для последующих страниц добавляем
+                    }
                 }
             }
         });
@@ -100,21 +104,21 @@ async function fetchImages(query, page) {
     }
 }
 
+
 function renderGallery(images) {
     const gallery = document.getElementById('gallery');
-    const emptyMessage = document.getElementById('emptyMessage');
 
     if (gallery) {
-        gallery.innerHTML = '';
+        gallery.innerHTML = ''; // Очищаем галерею
 
         if (images.length === 0) {
-            if (emptyMessage)
-                emptyMessage.style.display = 'block';
+            const noResultsMessage = document.createElement('p');
+            noResultsMessage.className = 'no-results-message';
+            noResultsMessage.textContent = 'No results found for your query.';
+            gallery.appendChild(noResultsMessage); // Добавляем сообщение в галерею
         } else {
-            if (emptyMessage)
-                emptyMessage.style.display = 'none';
             const markup = createGalleryMarkup(images);
-            gallery.insertAdjacentHTML('beforeend', markup);
+            gallery.insertAdjacentHTML('beforeend', markup); // Добавляем изображения в галерею
         }
     }
 }
@@ -149,18 +153,17 @@ function setupInfiniteScroll() {
     let debounceTimeout;
 
     window.addEventListener('scroll', () => {
-        clearTimeout(debounceTimeout); // Сбрасываем предыдущий таймер
+        clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(() => {
-            // Проверяем, достигли ли мы конца страницы
             if (
                 window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
                 !isLoading &&
                 currentQuery
             ) {
-                currentPage++; // Увеличиваем номер страницы
+                currentPage++
                 fetchImages(currentQuery, currentPage);
             }
-        }, 200); // Устанавливаем задержку в 200 мс
+        }, 200);
     });
 }
 
