@@ -4,8 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function main() {
     setupSearchForm();
+    setupInfiniteScroll();
 }
 
+let currentQuery = '';
+let currentPage = 1;
+let isLoading = false;
 
 function setupSearchForm() {
     const searchForm = document.getElementById('search_form');
@@ -20,7 +24,9 @@ function setupSearchForm() {
 
                 if (input) {
                     try {
-                        await fetchImages(input);
+                        currentQuery = input;
+                        currentPage = 1;
+                        await fetchImages(currentQuery, currentPage);
                         searchInput.value = '';
                     } catch (error) {
                         console.error('Failed to fetch images:', error);
@@ -30,7 +36,6 @@ function setupSearchForm() {
         };
     }
 }
-
 
 async function handleResponse(response, onSuccess) {
     if (!response.ok) {
@@ -71,26 +76,54 @@ async function getSecrets() {
     });
 }
 
-async function fetchImages(query) {
+async function fetchImages(query, page) {
+    if (isLoading) return;
+    isLoading = true;
+
     try {
         const keys = await getSecrets();
-        const url = `https://api.unsplash.com/search/photos?query=${query}&per_page=10&client_id=${keys.accessKey}`;
+        const url = `https://api.unsplash.com/search/photos?query=${query}&per_page=5&page=${page}&client_id=${keys.accessKey}`;
         makeRequest(url, (data) => {
             console.log('Received data:', data);
             if (data.results) {
-                renderGallery(data.results);
+                if (page === 1) {
+                    renderGallery(data.results);
+                } else {
+                    appendToGallery(data.results);
+                }
             }
         });
     } catch (error) {
         console.error("Error fetching images:", error);
+    } finally {
+        isLoading = false;
     }
 }
 
 function renderGallery(images) {
     const gallery = document.getElementById('gallery');
+    const emptyMessage = document.getElementById('emptyMessage');
 
     if (gallery) {
         gallery.innerHTML = '';
+
+        if (images.length === 0) {
+            if (emptyMessage)
+                emptyMessage.style.display = 'block';
+        } else {
+            if (emptyMessage)
+                emptyMessage.style.display = 'none';
+            const markup = createGalleryMarkup(images);
+            gallery.insertAdjacentHTML('beforeend', markup);
+        }
+    }
+}
+
+
+function appendToGallery(images) {
+    const gallery = document.getElementById('gallery');
+
+    if (gallery) {
         const markup = createGalleryMarkup(images);
         gallery.insertAdjacentHTML('beforeend', markup);
     }
@@ -99,7 +132,7 @@ function renderGallery(images) {
 function createGalleryMarkup(images) {
     return images
         .map((image) => {
-            const highQualityImageUrl = `${image.urls.raw}&q=80&w=1280&fit=max`; // Уменьшили ширину до 1280
+            const highQualityImageUrl = `${image.urls.raw}&q=80&w=1280&fit=max`;
             return `
             <a href="${image.links.html}?utm_source=your_app_name&utm_medium=referral" target="_blank" class="gallery__link">
                 <figure class="gallery__thumb">
@@ -112,5 +145,22 @@ function createGalleryMarkup(images) {
         .join('');
 }
 
+function setupInfiniteScroll() {
+    let debounceTimeout;
 
+    window.addEventListener('scroll', () => {
+        clearTimeout(debounceTimeout); // Сбрасываем предыдущий таймер
+        debounceTimeout = setTimeout(() => {
+            // Проверяем, достигли ли мы конца страницы
+            if (
+                window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+                !isLoading &&
+                currentQuery
+            ) {
+                currentPage++; // Увеличиваем номер страницы
+                fetchImages(currentQuery, currentPage);
+            }
+        }, 200); // Устанавливаем задержку в 200 мс
+    });
+}
 
