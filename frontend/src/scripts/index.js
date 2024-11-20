@@ -155,15 +155,15 @@ function setupInfiniteScroll() {
     window.addEventListener('scroll', () => {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(() => {
-            if (
-                window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-                !isLoading &&
-                currentQuery
-            ) {
-                currentPage++
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const documentHeight = document.body.offsetHeight;
+
+            if (scrollPosition > documentHeight + 40 && !isLoading && currentQuery) {
+                currentPage++;
                 fetchImages(currentQuery, currentPage);
             }
         }, 200);
     });
 }
+
 
