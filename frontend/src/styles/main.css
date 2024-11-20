@@ -23,9 +23,6 @@
     transition: 0.3s;
 }
 
-.gallery:hover .gallery__image {
-    filter: grayscale(1);
-}
 
 .gallery__link {
     overflow: hidden;
@@ -33,9 +30,6 @@
     max-height: 400px;
 }
 
-.gallery__link:hover .gallery__image {
-    filter: grayscale(0);
-}
 
 .gallery__link:hover .gallery__caption {
     opacity: 1;
@@ -54,7 +48,7 @@
     transition: 0.3s;
 }
 
-.gallery__image:hover {
+.gallery__link:hover .gallery__image {
     transform: scale(1.1);
 }
 
