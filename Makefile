@@ -6,6 +6,9 @@ BACK_VOL = backend_volume
 all:
 	-@ $(DOCKER_COMPOSE) up --build
 
+reback:
+	-@ $(DOCKER_COMPOSE) restart backend
+
 clean:
 	-@ $(DOCKER_COMPOSE) down
 	-@ docker network rm $(DOCKER_NETWORK)

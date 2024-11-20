@@ -27,6 +27,6 @@ async function makeRequest(url, onSuccess) {
 }
 
 
-makeRequest('/api/hello', (data) => {
+makeRequest('/api/getKeys', (data) => {
     console.log('Received data:', data);
 });
