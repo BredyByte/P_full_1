@@ -1,3 +1,36 @@
+document.addEventListener("DOMContentLoaded", () => {
+    main();
+});
+
+function main() {
+    setupSearchForm();
+}
+
+
+function setupSearchForm() {
+    const searchForm = document.getElementById('search_form');
+
+    if (searchForm) {
+        searchForm.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const searchInput = document.getElementById('search_input');
+            if (searchInput) {
+                const input = searchInput.value.trim();
+
+                if (input) {
+                    try {
+                        await fetchImages('Horses');
+                        searchInput.value = '';
+                    } catch (error) {
+                        console.error('Failed to send message:', error);
+                    }
+                }
+            }
+        };
+    }
+}
+
 async function handleResponse(response, onSuccess) {
     if (!response.ok) {
         const errorData = await response.json();
@@ -48,5 +81,3 @@ async function fetchImages(query) {
         console.error("Error fetching images:", error);
     }
 }
-
-fetchImages('Horses');

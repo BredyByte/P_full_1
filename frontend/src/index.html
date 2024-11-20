@@ -9,12 +9,22 @@
 </head>
 <body>
     <div class="container mt-5">
-        <div class="row mb-4">
-			<div class="input-group mb-3">
-				<button class="btn btn-outline-secondary" type="button" id="button-addon1">Button</button>
-				<input type="text" class="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-			  </div>
-        </div>
+		<!-- Search form -->
+		<div class="search-form-container form-group mb-0">
+			<form id="search_form" class="w-100 d-flex align-items-center">
+				<div class="input-group">
+					<div class="form-floating">
+						<input type="text" id="search_input" name="query" placeholder="Search..." class="form-control">
+						<label for="search_input" data-i18n="search-photos">Photo request</label>
+					</div>
+					<button id="search_submit" type="submit" class="btn btn-outline-secondary send-button">
+						Search
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Gallery -->
 		<div class="gallery" id="gallery">
 			<!-- <a href="https://unsplash.com/@jeka_fe" target="_blank" class="gallery__link">
 				<figure class="gallery__thumb">
