@@ -17,7 +17,7 @@ services:
       context: ./backend
     env_file: .env
     volumes:
-      - backend_volume:/app
+      - backend_volume:/app/src
     networks:
       - app_network
     expose:

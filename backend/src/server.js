@@ -3,6 +3,7 @@ const app = express();
 const port = 5000;
 
 app.get('/api/hello', (req, res) => {
+  console.log('Received request at /api/hello');
   res.json({ response: "hello" });
 });
 
