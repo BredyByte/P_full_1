@@ -29,7 +29,7 @@ function renderButtons(isLoggedIn) {
     if (isLoggedIn) {
         buttonsContainer.innerHTML = `
             <button class="btn btn-secondary">
-                <i class="fa-regular fa-star"></i>
+                My favorite
             </button>
         `;
     } else {
@@ -120,7 +120,7 @@ async function fetchImages(query, page) {
 }
 
 
-function renderGallery(images) {
+async function renderGallery(images) {
     const gallery = document.getElementById('gallery');
 
     if (gallery) {
@@ -132,33 +132,42 @@ function renderGallery(images) {
             noResultsMessage.textContent = 'No results found for your query.';
             gallery.appendChild(noResultsMessage);
         } else {
-            const markup = createGalleryMarkup(images);
+            const markup = await createGalleryMarkup(images);
             gallery.insertAdjacentHTML('beforeend', markup);
         }
     }
 }
 
 
-function appendToGallery(images) {
+async function appendToGallery(images) {
     const gallery = document.getElementById('gallery');
 
     if (gallery) {
-        const markup = createGalleryMarkup(images);
+        const markup = await createGalleryMarkup(images);
         gallery.insertAdjacentHTML('beforeend', markup);
     }
 }
 
-function createGalleryMarkup(images) {
+async function createGalleryMarkup(images) {
+    const isLoggedIn = await isUserLoggedIn();
+
     return images
         .map((image) => {
             const highQualityImageUrl = `${image.urls.raw}&q=80&w=1280&fit=max`;
+            const starButton = isLoggedIn
+                ? `<button class="btn btn-secondary gallery__favorite">
+                        <i class="fa-regular fa-star"></i>
+                   </button>`
+                : '';
+
             return `
-            <a href="${image.links.html}?utm_source=your_app_name&utm_medium=referral" target="_blank" class="gallery__link">
-                <figure class="gallery__thumb">
-                    <img src="${highQualityImageUrl}" alt="Photo by ${image.user.name}" class="gallery__image">
-                    <figcaption class="gallery__caption">Photo by ${image.user.name}</figcaption>
-                </figure>
-            </a>
+                <a href="${image.links.html}?utm_source=your_app_name&utm_medium=referral" target="_blank" class="gallery__link">
+                    ${starButton}
+                    <figure class="gallery__thumb">
+                        <img src="${highQualityImageUrl}" alt="Photo by ${image.user.name}" class="gallery__image">
+                        <figcaption class="gallery__caption">Photo by ${image.user.name}</figcaption>
+                    </figure>
+                </a>
             `;
         })
         .join('');

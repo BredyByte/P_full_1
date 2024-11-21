@@ -26,11 +26,23 @@
 
 
 .gallery__link {
+    position: relative;
     overflow: hidden;
     height: 400px;
     max-height: 400px;
 }
 
+.gallery__favorite {
+    position: absolute;
+    z-index: 10;
+    top: 10px;
+    right: 10px;
+    opacity: 0.7;
+}
+
+.gallery__favorite::hover {
+    opacity: 1;
+}
 
 .gallery__link:hover .gallery__caption {
     opacity: 1;
