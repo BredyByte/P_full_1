@@ -14,7 +14,11 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 const requestHandler = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
-  if (req.method === 'GET' && parsedUrl.pathname === '/api/check-auth') {
+
+  
+  if (req.method ==='POST' && parsedUrl.pathname === '/api/favorites') {
+    console.log("HELLLO");
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/api/check-auth') {
     const cookies = parseCookies(req);
     const accessToken = cookies.access_token;
 

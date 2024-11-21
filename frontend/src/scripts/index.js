@@ -44,6 +44,50 @@ function main() {
     setupSearchForm();
     setupInfiniteScroll();
     setupLoginButton();
+    setupFavoriteEvent();
+}
+
+function setupFavoriteEvent() {
+    document.addEventListener("click", async (event) => {
+        const favoriteButton = event.target.closest(".gallery__favorite");
+
+        if (favoriteButton) {
+
+            event.stopPropagation();
+
+            const imageId = favoriteButton.dataset.imageId;
+            const imageUrl = favoriteButton.dataset.imageUrl;
+            const imageAuthor = favoriteButton.dataset.imageAuthor;
+
+            if (imageId && imageUrl && imageAuthor) {
+                try {
+                    const response = await fetch('/api/favorites', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id: imageId,
+                            url: imageUrl,
+                            author: imageAuthor,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        console.log(`Image ${imageId} added to favorites successfully!`);
+                    } else {
+                        console.error(`Failed to add image ${imageId} to favorites.`);
+                    }
+                } catch (error) {
+                    console.error('Error adding image to favorites:', error);
+                }
+            }
+
+            return;
+        }
+    });
+
+
 }
 
 
@@ -155,7 +199,11 @@ async function createGalleryMarkup(images) {
         .map((image) => {
             const highQualityImageUrl = `${image.urls.raw}&q=80&w=1280&fit=max`;
             const starButton = isLoggedIn
-                ? `<button class="btn btn-secondary gallery__favorite">
+                ? `<button class="btn btn-secondary gallery__favorite"
+                           role="button"
+                           data-image-id="${image.id}"
+                           data-image-url="${highQualityImageUrl}"
+                           data-image-author="${image.user.name}">
                         <i class="fa-regular fa-star"></i>
                    </button>`
                 : '';
@@ -172,6 +220,7 @@ async function createGalleryMarkup(images) {
         })
         .join('');
 }
+
 
 function setupInfiniteScroll() {
     let debounceTimeout;
