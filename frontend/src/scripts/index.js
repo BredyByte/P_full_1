@@ -48,49 +48,36 @@ function main() {
 }
 
 function setupFavoriteEvent() {
-    document.addEventListener("click", async (event) => {
+    document.addEventListener("click", (event) => {
         const favoriteButton = event.target.closest(".gallery__favorite");
 
         if (favoriteButton) {
-
             event.stopPropagation();
-            console.log("Davyd is here!");
+            const imageId = favoriteButton.dataset.imageId;
+            const imageUrl = favoriteButton.dataset.imageUrl;
+            const imageAuthor = favoriteButton.dataset.imageAuthor;
 
+            if (imageId && imageUrl && imageAuthor) {
+                const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-            // const imageId = favoriteButton.dataset.imageId;
-            // const imageUrl = favoriteButton.dataset.imageUrl;
-            // const imageAuthor = favoriteButton.dataset.imageAuthor;
+                const isAlreadyFavorite = favorites.some(fav => fav.id === imageId);
 
-            // if (imageId && imageUrl && imageAuthor) {
-            //     try {
-            //         const response = await fetch('/api/favorites', {
-            //             method: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-            //             },
-            //             body: JSON.stringify({
-            //                 id: imageId,
-            //                 url: imageUrl,
-            //                 author: imageAuthor,
-            //             }),
-            //         });
+                if (!isAlreadyFavorite) {
+                    favorites.push({ id: imageId, url: imageUrl, author: imageAuthor });
 
-            //         if (response.ok) {
-            //             console.log(`Image ${imageId} added to favorites successfully!`);
-            //         } else {
-            //             console.error(`Failed to add image ${imageId} to favorites.`);
-            //         }
-            //     } catch (error) {
-            //         console.error('Error adding image to favorites:', error);
-            //     }
-            // }
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+
+                    console.log(`Image ${imageId} added to favorites.`);
+                } else {
+                    console.log(`Image ${imageId} is already in favorites.`);
+                }
+            }
 
             return;
         }
     });
-
-
 }
+
 
 
 function setupLoginButton() {
@@ -195,8 +182,7 @@ async function appendToGallery(images) {
 }
 
 async function createGalleryMarkup(images) {
-    // const isLoggedIn = await isUserLoggedIn();
-    const isLoggedIn = true;
+    const isLoggedIn = await isUserLoggedIn();
 
     return images
         .map((image) => {

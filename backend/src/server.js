@@ -12,13 +12,12 @@ const CLIENT_SECRET = process.env.UNSPLASH_SECRET_KEY;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
 const requestHandler = (req, res) => {
+
   const parsedUrl = url.parse(req.url, true);
 
 
-  
-  if (req.method ==='POST' && parsedUrl.pathname === '/api/favorites') {
-    console.log("HELLLO");
-  } else if (req.method === 'GET' && parsedUrl.pathname === '/api/check-auth') {
+
+  if (req.method === 'GET' && parsedUrl.pathname === '/api/check-auth') {
     const cookies = parseCookies(req);
     const accessToken = cookies.access_token;
 
@@ -32,18 +31,15 @@ const requestHandler = (req, res) => {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    })
-      .then((response) => {
+    }).then((response) => {
         if (!response.ok) {
           throw new Error('Failed to authenticate user');
         }
         return response.json();
-      })
-      .then((userData) => {
+      }).then((userData) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(userData));
-      })
-      .catch((error) => {
+      }).catch((error) => {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Invalid token or user not authenticated' }));
       });
@@ -99,8 +95,7 @@ const requestHandler = (req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Failed to obtain access token', details: data }));
         }
-      })
-      .catch((err) => {
+      }).catch((err) => {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Error during token exchange', details: err.message }));
       });
