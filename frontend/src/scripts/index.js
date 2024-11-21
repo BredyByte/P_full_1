@@ -28,10 +28,11 @@ function renderButtons(isLoggedIn) {
 
     if (isLoggedIn) {
         buttonsContainer.innerHTML = `
-            <button class="btn btn-secondary">
-                My favorite
+            <button class="btn btn-secondary" id="favorites_button">
+                My favorites
             </button>
         `;
+        setupFavoritesGalleryButton();
     } else {
         buttonsContainer.innerHTML = `
             <button id="login_button" class="btn btn-success">Login</button>
@@ -43,7 +44,6 @@ function renderButtons(isLoggedIn) {
 function main() {
     setupSearchForm();
     setupInfiniteScroll();
-    setupLoginButton();
     setupFavoriteEvent();
 }
 
@@ -78,8 +78,6 @@ function setupFavoriteEvent() {
     });
 }
 
-
-
 function setupLoginButton() {
     const loginButton = document.getElementById('login_button');
 
@@ -89,6 +87,18 @@ function setupLoginButton() {
         });
     }
 }
+
+function setupFavoritesGalleryButton() {
+    const favoritesButton = document.getElementById("favorites_button");
+
+    if (favoritesButton) {
+        favoritesButton.addEventListener("click", () => {
+            // Переход на страницу с избранными фотографиями
+            window.location.href = '/favorites.html';
+        });
+    }
+}
+
 
 let currentQuery = '';
 let currentPage = 1;
