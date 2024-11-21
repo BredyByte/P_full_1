@@ -37,68 +37,33 @@ function setupSearchForm() {
     }
 }
 
-async function handleResponse(response, onSuccess) {
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw {
-            errorCode: response.status,
-            errorMessage: errorData.detail || errorData.error || response.statusText || "Unknown error"
-        };
-    }
-
-    if (response.headers.get('content-length') > 0) {
-        const data = await response.json();
-        onSuccess(data);
-    } else {
-        onSuccess();
-    }
-}
-
-async function makeRequest(url, onSuccess) {
-    try {
-        const response = await fetch(url);
-        await handleResponse(response, onSuccess);
-    } catch (error) {
-        console.error("Error during request:", error);
-    }
-}
-
-async function getSecrets() {
-    return new Promise((resolve, reject) => {
-        makeRequest('/api/getKeys', (data) => {
-            if (data) {
-                console.log('Received keys data:', data);
-                resolve(data);
-            } else {
-                reject(new Error("Failed to fetch secrets"));
-            }
-        });
-    });
-}
 
 async function fetchImages(query, page) {
     if (isLoading) return;
     isLoading = true;
 
     try {
-        const keys = await getSecrets();
-        const url = `https://api.unsplash.com/search/photos?query=${query}&per_page=5&page=${page}&client_id=${keys.accessKey}`;
-        makeRequest(url, (data) => {
-            console.log('Received data:', data);
-            if (data.results) {
-                if (data.results.length === 0) {
-                    renderGallery([]); // Если пустой результат, показываем сообщение
+        const response = await fetch(`/api/search?query=${query}&page=${page}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch images: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('Received data:', data);
+
+        if (data.results) {
+            if (data.results.length === 0) {
+                renderGallery([]);
+            } else {
+                if (page === 1) {
+                    renderGallery(data.results);
                 } else {
-                    if (page === 1) {
-                        renderGallery(data.results); // Для первой страницы рендерим с нуля
-                    } else {
-                        appendToGallery(data.results); // Для последующих страниц добавляем
-                    }
+                    appendToGallery(data.results);
                 }
             }
-        });
+        }
     } catch (error) {
-        console.error("Error fetching images:", error);
+        console.error('Error fetching images:', error);
     } finally {
         isLoading = false;
     }
@@ -109,16 +74,16 @@ function renderGallery(images) {
     const gallery = document.getElementById('gallery');
 
     if (gallery) {
-        gallery.innerHTML = ''; // Очищаем галерею
+        gallery.innerHTML = '';
 
         if (images.length === 0) {
             const noResultsMessage = document.createElement('p');
             noResultsMessage.className = 'no-results-message';
             noResultsMessage.textContent = 'No results found for your query.';
-            gallery.appendChild(noResultsMessage); // Добавляем сообщение в галерею
+            gallery.appendChild(noResultsMessage);
         } else {
             const markup = createGalleryMarkup(images);
-            gallery.insertAdjacentHTML('beforeend', markup); // Добавляем изображения в галерею
+            gallery.insertAdjacentHTML('beforeend', markup);
         }
     }
 }
