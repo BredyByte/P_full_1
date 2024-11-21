@@ -3,15 +3,33 @@ document.addEventListener("DOMContentLoaded", () => {
     main();
 });
 
+
 async function checkLoginStatus() {
     try {
         const response = await fetch('/api/check-auth');
 
+        const buttonsContainer = document.getElementById('buttons_container');
+        if (!buttonsContainer) {
+            console.error('Buttons container not found.');
+            return;
+        }
+
         if (response.ok) {
             const userData = await response.json();
             console.log('User is logged in:', userData);
+
+            buttonsContainer.innerHTML = `
+                <button class="btn btn-secondary">
+                    <i class="fa-regular fa-star"></i>
+                </button>
+            `;
         } else {
             console.log('User is not logged in.');
+
+            buttonsContainer.innerHTML = `
+                <button id="login_button" class="btn btn-success">Login</button>
+            `;
+            setupLoginButton();
         }
     } catch (error) {
         console.error('Error checking login status:', error);
