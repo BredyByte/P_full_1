@@ -51,9 +51,17 @@ const requestHandler = (req, res) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.access_token) {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ message: 'Authentication successful', token: data }));
+        if (data.access_token && data.refresh_token) {
+          const expires = new Date(Date.now() + 60 * 60 * 1000).toUTCString();
+
+          res.writeHead(302, {
+            'Set-Cookie': [
+              `access_token=${data.access_token}; Expires=${expires}; HttpOnly; Secure; SameSite=Strict`,
+              `refresh_token=${data.refresh_token}; Expires=${expires}; HttpOnly; Secure; SameSite=Strict`,
+            ],
+            Location: 'http://localhost:8080/',
+          });
+          res.end();
         } else {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Failed to obtain access token', details: data }));
