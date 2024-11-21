@@ -5,6 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
 function main() {
     setupSearchForm();
     setupInfiniteScroll();
+    setupLoginButton();
+}
+
+function setupLoginButton() {
+    const loginButton = document.getElementById('login_button');
+
+    if (loginButton) {
+        loginButton.addEventListener('click', () => {
+            window.location.href = '/api/login';
+        });
+    }
 }
 
 let currentQuery = '';
