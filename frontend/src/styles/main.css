@@ -24,12 +24,19 @@
     padding-bottom: 50px;
 }
 
-
-.gallery__link {
+.gallery__item {
     position: relative;
     overflow: hidden;
     height: 400px;
     max-height: 400px;
+}
+
+.gallery__link {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .gallery__favorite {
@@ -37,11 +44,11 @@
     z-index: 10;
     top: 10px;
     right: 10px;
-    opacity: 0.7;
+    opacity: 0.5;
 }
 
-.gallery__favorite::hover {
-    opacity: 1;
+.gallery__favorite:hover {
+    opacity: 0.7;
 }
 
 .gallery__link:hover .gallery__caption {

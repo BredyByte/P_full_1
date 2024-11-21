@@ -54,34 +54,36 @@ function setupFavoriteEvent() {
         if (favoriteButton) {
 
             event.stopPropagation();
+            console.log("Davyd is here!");
 
-            const imageId = favoriteButton.dataset.imageId;
-            const imageUrl = favoriteButton.dataset.imageUrl;
-            const imageAuthor = favoriteButton.dataset.imageAuthor;
 
-            if (imageId && imageUrl && imageAuthor) {
-                try {
-                    const response = await fetch('/api/favorites', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            id: imageId,
-                            url: imageUrl,
-                            author: imageAuthor,
-                        }),
-                    });
+            // const imageId = favoriteButton.dataset.imageId;
+            // const imageUrl = favoriteButton.dataset.imageUrl;
+            // const imageAuthor = favoriteButton.dataset.imageAuthor;
 
-                    if (response.ok) {
-                        console.log(`Image ${imageId} added to favorites successfully!`);
-                    } else {
-                        console.error(`Failed to add image ${imageId} to favorites.`);
-                    }
-                } catch (error) {
-                    console.error('Error adding image to favorites:', error);
-                }
-            }
+            // if (imageId && imageUrl && imageAuthor) {
+            //     try {
+            //         const response = await fetch('/api/favorites', {
+            //             method: 'POST',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //             },
+            //             body: JSON.stringify({
+            //                 id: imageId,
+            //                 url: imageUrl,
+            //                 author: imageAuthor,
+            //             }),
+            //         });
+
+            //         if (response.ok) {
+            //             console.log(`Image ${imageId} added to favorites successfully!`);
+            //         } else {
+            //             console.error(`Failed to add image ${imageId} to favorites.`);
+            //         }
+            //     } catch (error) {
+            //         console.error('Error adding image to favorites:', error);
+            //     }
+            // }
 
             return;
         }
@@ -193,7 +195,8 @@ async function appendToGallery(images) {
 }
 
 async function createGalleryMarkup(images) {
-    const isLoggedIn = await isUserLoggedIn();
+    // const isLoggedIn = await isUserLoggedIn();
+    const isLoggedIn = true;
 
     return images
         .map((image) => {
@@ -209,13 +212,15 @@ async function createGalleryMarkup(images) {
                 : '';
 
             return `
-                <a href="${image.links.html}?utm_source=your_app_name&utm_medium=referral" target="_blank" class="gallery__link">
+                <div class="gallery__item">
                     ${starButton}
-                    <figure class="gallery__thumb">
-                        <img src="${highQualityImageUrl}" alt="Photo by ${image.user.name}" class="gallery__image">
-                        <figcaption class="gallery__caption">Photo by ${image.user.name}</figcaption>
-                    </figure>
-                </a>
+                    <a href="${image.links.html}?utm_source=your_app_name&utm_medium=referral" target="_blank" class="gallery__link">
+                        <figure class="gallery__thumb">
+                            <img src="${highQualityImageUrl}" alt="Photo by ${image.user.name}" class="gallery__image">
+                            <figcaption class="gallery__caption">Photo by ${image.user.name}</figcaption>
+                        </figure>
+                    </a>
+                </div>
             `;
         })
         .join('');
