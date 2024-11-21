@@ -14,7 +14,36 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 const requestHandler = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
-  if (req.method === 'GET' && parsedUrl.pathname === '/api/login') {
+  if (req.method === 'GET' && parsedUrl.pathname === '/api/check-auth') {
+    const cookies = parseCookies(req);
+    const accessToken = cookies.access_token;
+
+    if (!accessToken) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'User not authenticated' }));
+      return;
+    }
+
+    fetch('https://api.unsplash.com/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to authenticate user');
+        }
+        return response.json();
+      })
+      .then((userData) => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(userData));
+      })
+      .catch((error) => {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid token or user not authenticated' }));
+      });
+  } else if (req.method === 'GET' && parsedUrl.pathname === '/api/login') {
     const authUrl = `${UNSPLASH_AUTH_URL}/authorize?${querystring.stringify({
       client_id: CLIENT_ID,
       redirect_uri: REDIRECT_URI,
@@ -122,3 +151,13 @@ const server = http.createServer(requestHandler);
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+function parseCookies(req) {
+  const cookieHeader = req.headers.cookie || '';
+  const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+  return cookies;
+}

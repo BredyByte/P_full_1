@@ -1,6 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
+    checkLoginStatus();
     main();
 });
+
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/api/check-auth');
+
+        if (response.ok) {
+            const userData = await response.json();
+            console.log('User is logged in:', userData);
+        } else {
+            console.log('User is not logged in.');
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+    }
+}
 
 function main() {
     setupSearchForm();
