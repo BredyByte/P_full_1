@@ -15,14 +15,12 @@ const requestHandler = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
 
   if (req.method === 'GET' && parsedUrl.pathname === '/api/login') {
-
     const authUrl = `${UNSPLASH_AUTH_URL}/authorize?${querystring.stringify({
       client_id: CLIENT_ID,
       redirect_uri: REDIRECT_URI,
       response_type: 'code',
       scope: 'public',
     })}`;
-
 
     res.writeHead(302, { Location: authUrl });
     res.end();
@@ -66,40 +64,42 @@ const requestHandler = (req, res) => {
         res.end(JSON.stringify({ error: 'Error during token exchange', details: err.message }));
       });
   } else if (req.method === 'GET' && parsedUrl.pathname === '/api/search') {
-      const query = parsedUrl.query.query;
-      const page = parsedUrl.query.page || 1;
+    const query = parsedUrl.query.query;
+    const page = parsedUrl.query.page || 1;
 
-      if (!query) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Missing query parameter' }));
-        return;
-      }
+    if (!query) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Missing query parameter' }));
+      return;
+    }
 
-      const accessKey = CLIENT_ID;
+    const accessKey = CLIENT_ID;
 
-      if (!accessKey) {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(
-          JSON.stringify({
-            error: 'Missing Unsplash access key',
-            message: 'Ensure UNSPLASH_ACCESS_KEY is set in the environment variables.',
-          })
-        );
-        return;
-      }
+    if (!accessKey) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          error: 'Missing Unsplash access key',
+          message: 'Ensure UNSPLASH_ACCESS_KEY is set in the environment variables.',
+        })
+      );
+      return;
+    }
 
-      const unsplashUrl = `${UNSPLASH_BASE_URL}/search/photos?query=${encodeURIComponent(
-        query
-      )}&page=${page}&per_page=5&client_id=${accessKey}`;
+    const unsplashUrl = `${UNSPLASH_BASE_URL}/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=5&client_id=${accessKey}`;
 
-      https.get(unsplashUrl, (apiRes) => {
-        let data = '';
-        apiRes.on('data', (chunk) => (data += chunk));
-        apiRes.on('end', () => {
-          res.writeHead(apiRes.statusCode, { 'Content-Type': 'application/json' });
-          res.end(data);
-        });
-      }).on('error', (err) => {
+    fetch(unsplashUrl)
+      .then((apiRes) => {
+        if (!apiRes.ok) {
+          throw new Error('Failed to fetch images');
+        }
+        return apiRes.json();
+      })
+      .then((data) => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data));
+      })
+      .catch((err) => {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Failed to fetch images', details: err.message }));
       });
